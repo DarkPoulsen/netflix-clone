@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catálogo de Películas - Netflix</title>
+    <style>
+        :root {
+            --bg: #0b0b0b;
+            --bg-soft: #141414;
+            --panel: #181818;
+            --text: #fff;
+            --muted: #b3b3b3;
+            --red: #e50914;
+            --red-dark: #b20710;
+            --line: rgba(255,255,255,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .container {
+            width: min(1280px, 92%);
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 20;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.1));
+            border-bottom: 1px solid var(--line);
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 74px;
+        }
+
+        .nav-left,
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .logo {
+            font-weight: 900;
+            color: var(--red);
+            font-size: 2rem;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+        }
+
+        .menu {
+            display: flex;
+            gap: 18px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .menu a:hover {
+            color: var(--text);
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text);
+            padding: 10px 14px 10px 36px;
+            border-radius: 4px;
+            width: 200px;
+            transition: 0.2s ease;
+        }
+
+        .search-input::placeholder {
+            color: var(--muted);
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.15);
+            border-color: var(--red);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .login-btn {
+            background: var(--red);
+            color: var(--text);
+            border: none;
+            border-radius: 4px;
+            padding: 10px 18px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: var(--red-dark);
+        }
+
+        /* MAIN CONTENT */
+        main {
+            padding-top: 90px;
+        }
+
+        .page-header {
+            padding: 40px 0 20px;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        /* FILTROS */
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .filter-btn {
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--muted);
+            border-radius: 999px;
+            padding: 9px 16px;
+            cursor: pointer;
+            transition: 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--text);
+            border-color: var(--text);
+        }
+
+        /* GRID DE PELÍCULAS */
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(160px, 1fr));
+            gap: 18px;
+            margin-bottom: 50px;
+        }
+
+        .movie-card {
+            position: relative;
+            height: 260px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--panel);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            group: movie;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 22px 40px rgba(0,0,0,0.5);
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .movie-card:hover img {
+            transform: scale(1.08);
+        }
+
+        .movie-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.2), rgba(0,0,0,0));
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 16px;
+            z-index: 1;
+        }
+
+        .movie-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .movie-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #e0e0e0;
+        }
+
+        .rating-star {
+            color: #ffd700;
+        }
+
+        .movie-actions {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 2;
+        }
+
+        .movie-card:hover .movie-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: var(--red);
+            border: none;
+            color: var(--text);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.2s ease;
+            margin: 0 6px;
+        }
+
+        .action-btn:hover {
+            background: var(--red-dark);
+            transform: scale(1.1);
+        }
+
+        /* MODAL */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            width: min(900px, 95%);
+            background: #111;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            position: relative;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            padding: 24px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(17,17,17,0.9));
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0,0,0,0.7);
+            border: none;
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--red);
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        .modal-body h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+
+        .modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 18px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .modal-meta span:first-child {
+            color: #76d98b;
+            font-weight: 700;
+        }
+
+        .modal-body p {
+            color: #d7d7d7;
+            line-height: 1.7;
+            margin-bottom: 22px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 4px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--text);
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.15);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.22);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .movies-grid {
+                grid-template-columns: repeat(5, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 900px) {
+            .movies-grid {
+                grid-template-columns: repeat(3, minmax(140px, 1fr));
+            }
+
+            .menu {
+                display: none;
+            }
+
+            .search-input {
+                width: 160px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .topbar {
+                height: 70px;
+            }
+
+            .movies-grid {
+                grid-template-columns: repeat(2, minmax(120px, 1fr));
+                gap: 12px;
+            }
+
+            .movie-card {
+                height: 200px;
+            }
+
+            .logo {
+                font-size: 1.6rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .icon-btn:nth-child(1),
+            .icon-btn:nth-child(2) {
+                display: none;
+            }
+
+            .search-input {
+                width: 140px;
+                padding: 8px 12px 8px 32px;
+            }
+
+            .modal-content {
+                border-radius: 12px;
+            }
+
+            .modal-header {
+                height: 200px;
+            }
+
+            .modal-body {
+                padding: 18px;
+            }
+
+            .modal-body h2 {
+                font-size: 1.4rem;
+            }
+
+            .modal-meta {
+                font-size: 0.85rem;
+                gap: 10px;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+        }
+
+        .no-results p {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="container topbar">
+            <div class="nav-left">
+                <a href="index.html" class="logo">Netflix</a>
+                <nav class="menu">
+                    <a href="#">Inicio</a>
+                    <a href="#">Series</a>
+                    <a href="#">Películas</a>
+                    <a href="#">Novedades</a>
+                </nav>
+            </div>
+
+            <div class="nav-right">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput"
+                        placeholder="Buscar películas..."
+                    />
+                </div>
+                <button class="icon-btn" aria-label="Notificaciones">🔔</button>
+                <button class="login-btn">Iniciar sesión</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+        <div class="container">
+            <section class="page-header">
+                <h1>Catálogo de Películas</h1>
+                <p>Descubre nuestras películas recomendadas</p>
+            </section>
+
+            <!-- FILTROS -->
+            <div class="filters">
+                <button class="filter-btn active" data-genre="todos">Todos</button>
+                <button class="filter-btn" data-genre="accion">Acción</button>
+                <button class="filter-btn" data-genre="drama">Drama</button>
+                <button class="filter-btn" data-genre="comedia">Comedia</button>
+                <button class="filter-btn" data-genre="thriller">Thriller</button>
+                <button class="filter-btn" data-genre="animacion">Animación</button>
+                <button class="filter-btn" data-genre="fantasia">Fantasía</button>
+                <button class="filter-btn" data-genre="ciencia-ficcion">Ciencia Ficción</button>
+            </div>
+
+            <!-- GRID DE PELÍCULAS -->
+            <div id="moviesGrid" class="movies-grid"></div>
+            <div id="noResults" class="no-results" style="display: none;">
+                <p>No se encontraron películas con ese criterio</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL -->
+    <div class="modal" id="movieModal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalImage">
+                <button class="modal-close" id="closeModal">×</button>
+            </div>
+            <div class="modal-body">
+                <h2 id="modalTitle">Título</h2>
+                <div class="modal-meta" id="modalMeta"></div>
+                <p id="modalDescription">Descripción</p>
+                <div class="modal-actions">
+                    <button class="btn btn-primary">▶ Reproducir</button>
+                    <button class="btn btn-secondary">＋ Mi lista</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const movies = [
+            {
+                id: 1,
+                title: "Avengers: Endgame",
+                genre: "accion",
+                rating: 8.4,
+                year: 2019,
+                image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+                description: "Después de los eventos devastadores de Infinity War, los Vengadores sobrevivientes se reúnen para una misión final que requiere sacrificio supremo."
+            },
+            {
+                id: 2,
+                title: "Inception",
+                genre: "ciencia-ficcion",
+                rating: 8.8,
+                year: 2010,
+                image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80",
+                description: "Un ladrón que roba secretos corporativos a través de la tecnología de sueños es ofrecido la oportunidad de tener su crimen borrado como pago."
+            },
+            {
+                id: 3,
+                title: "The Shawshank Redemption",
+                genre: "drama",
+                rating: 9.3,
+                year: 1994,
+                image: "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1200&q=80",
+                description: "Dos hombres encarcelados establecen una amistad a lo largo de un número de años, encontrando consuelo y redención a través de actos de decencia común."
+            },
+            {
+                id: 4,
+                title: "Forrest Gump",
+                genre: "drama",
+                rating: 8.8,
+                year: 1994,
+                image: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=1200&q=80",
+                description: "Las hazañas de un hombre discapacitado del sur que accidentalmente influye en varios eventos históricos en el siglo XX de América."
+            },
+            {
+                id: 5,
+                title: "Pulp Fiction",
+                genre: "thriller",
+                rating: 8.9,
+                year: 1994,
+                image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1200&q=80",
+                description: "Las vidas de dos hombres de la mafia, una esposa, un boxeador y una pareja de criminales pequeños se entrelazan en cuatro historias de violencia y redención."
+            },
+            {
+                id: 6,
+                title: "The Lion King",
+                genre: "animacion",
+                rating: 8.5,
+                year: 1994,
+                image: "https://images.unsplash.com/photo-1501272772420-d8ae5cfbdebe?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1501272772420-d8ae5cfbdebe?auto=format&fit=crop&w=1200&q=80",
+                description: "El príncipe león exiliado regresa a su reino para desafiar a su tío usurpador y reclamar su trono."
+            },
+            {
+                id: 7,
+                title: "Gladiator",
+                genre: "accion",
+                rating: 8.5,
+                year: 2000,
+                image: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=1200&q=80",
+                description: "Un ex-general romano se convierte en esclavo gladiador en venganza por el asesinato de su familia."
+            },
+            {
+                id: 8,
+                title: "The Matrix",
+                genre: "ciencia-ficcion",
+                rating: 8.7,
+                year: 1999,
+                image: "https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?auto=format&fit=crop&w=1200&q=80",
+                description: "Un hacker descubre que la realidad en la que vive es una simulación creada por máquinas y debe elegir entre dos píldoras."
+            },
+            {
+                id: 9,
+                title: "Toy Story",
+                genre: "animacion",
+                rating: 8.3,
+                year: 1995,
+                image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1200&q=80",
+                description: "Un vaquero de juguete es accidentalmente enviado al espacio exterior con una figura de acción futurista, y deben trabajar juntos para regresar a casa."
+            },
+            {
+                id: 10,
+                title: "Interstellar",
+                genre: "ciencia-ficcion",
+                rating: 8.6,
+                year: 2014,
+                image: "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?auto=format&fit=crop&w=1200&q=80",
+                description: "Un equipo de exploradores viaja a través de un agujero de gusano en el espacio en un intento de asegurar la supervivencia de la humanidad."
+            },
+            {
+                id: 11,
+                title: "The Grand Budapest Hotel",
+                genre: "comedia",
+                rating: 8.1,
+                year: 2014,
+                image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80",
+                description: "Un escritor entrevista al dueño de un hotel y oye la historia de su asistente de personal sobre su vida y romance en el hotel Grand Budapest."
+            },
+            {
+                id: 12,
+                title: "Avatar",
+                genre: "fantasia",
+                rating: 7.8,
+                year: 2009,
+                image: "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=1200&q=80",
+                description: "Un ex-Infante de la Armada descubre su propósito cuando es colocado en el cuerpo de un avatar y envuelto en un conflicto en un mundo alienígena."
+            },
+            {
+                id: 13,
+                title: "The Dark Knight",
+                genre: "accion",
+                rating: 9.0,
+                year: 2008,
+                image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80",
+                description: "Batman enfrenta a un criminal Joker que quiere sumir a Gotham en la anarquía y presiona al Caballero Oscuro más allá del límite de su humanidad."
+            },
+            {
+                id: 14,
+                title: "Spirited Away",
+                genre: "animacion",
+                rating: 8.6,
+                year: 2001,
+                image: "https://images.unsplash.com/photo-1501272772420-d8ae5cfbdebe?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1501272772420-d8ae5cfbdebe?auto=format&fit=crop&w=1200&q=80",
+                description: "Durante sus viajes, una adolescente entra en el mundo mágico de dioses y espíritus y trata de encontrar su camino a casa."
+            },
+            {
+                id: 15,
+                title: "Parasite",
+                genre: "thriller",
+                rating: 8.6,
+                year: 2019,
+                image: "https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?auto=format&fit=crop&w=1200&q=80",
+                description: "Una familia pobre de Seúl se infiltra en la casa de una familia rica, haciéndose pasar por trabajadores no relacionados."
+            },
+            {
+                id: 16,
+                title: "The Silence of the Lambs",
+                genre: "thriller",
+                rating: 8.6,
+                year: 1991,
+                image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1200&q=80",
+                description: "Una agente del FBI en entrenamiento busca la ayuda de un asesino encarcelado para atrapar a otro asesino en serie."
+            },
+            {
+                id: 17,
+                title: "The Truman Show",
+                genre: "comedia",
+                rating: 8.3,
+                year: 1998,
+                image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80",
+                description: "Un hombre comienza a sospechar que todo lo que lo rodea es un conjunto de una estación de televisión en vivo gigante."
+            },
+            {
+                id: 18,
+                title: "Dune",
+                genre: "fantasia",
+                rating: 8.0,
+                year: 2021,
+                image: "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?auto=format&fit=crop&w=1200&q=80",
+                description: "Un joven noble debe viajar al planeta más peligroso del universo para asegurar el futuro de su familia y gente."
+            },
+            {
+                id: 19,
+                title: "Jaws",
+                genre: "thriller",
+                rating: 8.0,
+                year: 1975,
+                image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80",
+                description: "Cuando un tiburón blanco gigante comienza a alimentarse de los residentes de una pequeña playa, el jefe de policía local debe detenerlo."
+            },
+            {
+                id: 20,
+                title: "The Lion King 2",
+                genre: "animacion",
+                rating: 7.8,
+                year: 1997,
+                image: "https://images.unsplash.com/photo-1501272772420-d8ae5cfbdebe?auto=format&fit=crop&w=500&q=80",
+                backdrop: "https://images.unsplash.com/photo-1501272772420-d8ae5cfbdebe?auto=format&fit=crop&w=1200&q=80",
+                description: "Simba debe enfrentar sus miedos e intentar salvar su reino de las manos de Scar mientras brinda protección a su novia."
+            }
+        ];
+
+        const moviesGrid = document.getElementById("moviesGrid");
+        const filterBtns = document.querySelectorAll(".filter-btn");
+        const searchInput = document.getElementById("searchInput");
+        const modal = document.getElementById("movieModal");
+        const closeModal = document.getElementById("closeModal");
+        const noResults = document.getElementById("noResults");
+
+        function renderMovies(filter = "todos", search = "") {
+            let filtered = movies;
+
+            if (filter !== "todos") {
+                filtered = filtered.filter(m => m.genre === filter);
+            }
+
+            if (search.trim()) {
+                filtered = filtered.filter(m => 
+                    m.title.toLowerCase().includes(search.toLowerCase())
+                );
+            }
+
+            moviesGrid.innerHTML = filtered.map(movie => `
+                <div class="movie-card" data-id="${movie.id}">
+                    <img src="${movie.image}" alt="${movie.title}" />
+                    <div class="movie-overlay">
+                        <div class="movie-title">${movie.title}</div>
+                        <div class="movie-rating">
+                            <span class="rating-star">★</span>
+                            <span>${movie.rating}</span>
+                            <span>•</span>
+                            <span>${movie.year}</span>
+                        </div>
+                    </div>
+                    <div class="movie-actions">
+                        <button class="action-btn" title="Ver trailer">▶</button>
+                        <button class="action-btn" title="Agregar a lista">＋</button>
+                    </div>
+                </div>
+            `).join("");
+
+            if (filtered.length === 0) {
+                noResults.style.display = "block";
+            } else {
+                noResults.style.display = "none";
+            }
+
+            document.querySelectorAll(".movie-card").forEach(card => {
+                card.addEventListener("click", (e) => {
+                    if (!e.target.classList.contains("action-btn")) {
+                        openModal(parseInt(card.dataset.id));
+                    }
+                });
+            });
+        }
+
+        function openModal(movieId) {
+            const movie = movies.find(m => m.id === movieId);
+            if (!movie) return;
+
+            document.getElementById("modalImage").style.backgroundImage = `url('${movie.backdrop}')`;
+            document.getElementById("modalTitle").textContent = movie.title;
+            document.getElementById("modalMeta").innerHTML = `
+                <span>${movie.rating}★</span>
+                <span>${movie.year}</span>
+                <span>${movie.genre.toUpperCase()}</span>
+            `;
+            document.getElementById("modalDescription").textContent = movie.description;
+
+            modal.classList.add("show");
+        }
+
+        // Event Listeners
+        filterBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                filterBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                renderMovies(btn.dataset.genre, searchInput.value);
+            });
+        });
+
+        searchInput.addEventListener("input", () => {
+            const activeGenre = document.querySelector(".filter-btn.active").dataset.genre;
+            renderMovies(activeGenre, searchInput.value);
+        });
+
+        closeModal.addEventListener("click", () => {
+            modal.classList.remove("show");
+        });
+
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                modal.classList.remove("show");
+            }
+        });
+
+        // Initial render
+        renderMovies();
+    </script>
+</body>
+</html>
