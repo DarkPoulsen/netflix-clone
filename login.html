@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar Sesión | Netflix</title>
+    <style>
+        :root {
+            --bg: #0b0b0b;
+            --panel: #181818;
+            --text: #fff;
+            --muted: #b3b3b3;
+            --red: #e50914;
+            --red-dark: #b20710;
+            --line: rgba(255,255,255,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg) 0%, #1a1a2e 100%);
+            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            color: var(--red);
+            font-weight: 900;
+            letter-spacing: -2px;
+        }
+
+        .alien-container {
+            position: relative;
+            height: 280px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* EXTRATERRESTRE */
+        .alien {
+            position: relative;
+            width: 140px;
+            height: 160px;
+        }
+
+        .alien-head {
+            position: relative;
+            width: 100px;
+            height: 120px;
+            background: linear-gradient(135deg, #6dd47e 0%, #4ba85d 100%);
+            border-radius: 50% 50% 45% 45%;
+            margin: 0 auto 10px;
+            box-shadow: 0 10px 30px rgba(109, 212, 126, 0.3), inset -5px -10px 15px rgba(0,0,0,0.2);
+            animation: bobbing 3s ease-in-out infinite;
+        }
+
+        @keyframes bobbing {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* OJOS */
+        .eyes {
+            position: absolute;
+            top: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .eye {
+            width: 22px;
+            height: 32px;
+            background: #000;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 0 8px rgba(255,255,255,0.3);
+        }
+
+        .pupil {
+            position: absolute;
+            width: 10px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        .eye-shine {
+            position: absolute;
+            width: 6px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            top: 4px;
+            left: 4px;
+        }
+
+        /* BOCA */
+        .mouth {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 12px;
+            background: #000;
+            border-radius: 0 0 14px 14px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        /* ANTENAS */
+        .antenna {
+            position: absolute;
+            width: 3px;
+            background: linear-gradient(180deg, #4ba85d, #2d6a3a);
+            transform-origin: bottom center;
+            border-radius: 999px;
+        }
+
+        .antenna.left {
+            left: 15px;
+            top: -20px;
+            height: 35px;
+            transform: rotate(-25deg);
+            transform-origin: bottom center;
+            animation: wiggleLeft 2s ease-in-out infinite;
+        }
+
+        .antenna.right {
+            right: 15px;
+            top: -20px;
+            height: 35px;
+            transform: rotate(25deg);
+            transform-origin: bottom center;
+            animation: wiggleRight 2s ease-in-out infinite;
+        }
+
+        @keyframes wiggleLeft {
+            0%, 100% { transform: rotate(-25deg); }
+            50% { transform: rotate(-35deg); }
+        }
+
+        @keyframes wiggleRight {
+            0%, 100% { transform: rotate(25deg); }
+            50% { transform: rotate(35deg); }
+        }
+
+        /* CUERPO */
+        .alien-body {
+            width: 70px;
+            height: 45px;
+            background: linear-gradient(135deg, #5ba96f, #3d7a4f);
+            border-radius: 50% 50% 40% 40%;
+            margin: 0 auto;
+            box-shadow: inset -3px -5px 10px rgba(0,0,0,0.2);
+        }
+
+        /* BRAZOS */
+        .arm {
+            position: absolute;
+            width: 12px;
+            height: 50px;
+            background: linear-gradient(90deg, #5ba96f, #4ba85d);
+            border-radius: 6px;
+            bottom: 25px;
+        }
+
+        .arm.left {
+            left: 10px;
+            animation: armWaveLeft 2s ease-in-out infinite;
+        }
+
+        .arm.right {
+            right: 10px;
+            animation: armWaveRight 2s ease-in-out infinite;
+        }
+
+        @keyframes armWaveLeft {
+            0%, 100% { transform: rotate(-20deg); }
+            50% { transform: rotate(20deg); }
+        }
+
+        @keyframes armWaveRight {
+            0%, 100% { transform: rotate(20deg); }
+            50% { transform: rotate(-20deg); }
+        }
+
+        /* MANO TAPÁNDOSE LA CARA */
+        .hand-cover {
+            position: absolute;
+            width: 50px;
+            height: 60px;
+            background: linear-gradient(135deg, #5ba96f, #4ba85d);
+            border-radius: 50% 50% 30% 40%;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: inset -3px -5px 8px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .hand-cover.show {
+            opacity: 1;
+        }
+
+        /* FORMULARIO */
+        .form-container {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 32px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder {
+            color: var(--muted);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.1);
+            border-color: var(--red);
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.2);
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+        }
+
+        .remember-forgot a {
+            color: var(--red);
+            text-decoration: none;
+        }
+
+        .remember-forgot a:hover {
+            text-decoration: underline;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .checkbox input {
+            width: 16px !important;
+            padding: 0 !important;
+            cursor: pointer;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--red);
+            color: var(--text);
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .signup-link a {
+            color: var(--red);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 640px) {
+            .container {
+                max-width: 100%;
+            }
+
+            .logo {
+                font-size: 2rem;
+                margin-bottom: 24px;
+            }
+
+            .alien-container {
+                height: 240px;
+                margin-bottom: 30px;
+            }
+
+            .form-container {
+                padding: 24px;
+            }
+
+            .form-group input {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* EMOJI DECORATIVO */
+        .stars {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🎬 NETFLIX</div>
+
+        <!-- EXTRATERRESTRE -->
+        <div class="alien-container">
+            <div class="alien">
+                <!-- ANTENAS -->
+                <div class="antenna left"></div>
+                <div class="antenna right"></div>
+
+                <!-- CABEZA -->
+                <div class="alien-head">
+                    <!-- OJOS -->
+                    <div class="eyes" id="alienEyes">
+                        <div class="eye">
+                            <div class="pupil"></div>
+                            <div class="eye-shine"></div>
+                        </div>
+                        <div class="eye">
+                            <div class="pupil"></div>
+                            <div class="eye-shine"></div>
+                        </div>
+                    </div>
+
+                    <!-- BOCA -->
+                    <div class="mouth"></div>
+
+                    <!-- MANO CUBRIENDO LA CARA -->
+                    <div class="hand-cover" id="handCover"></div>
+                </div>
+
+                <!-- CUERPO -->
+                <div class="alien-body"></div>
+
+                <!-- BRAZOS -->
+                <div class="arm left"></div>
+                <div class="arm right"></div>
+            </div>
+        </div>
+
+        <!-- FORMULARIO -->
+        <form class="form-container" id="loginForm">
+            <div class="form-group">
+                <label for="email">Email o Usuario</label>
+                <input 
+                    type="text" 
+                    id="email" 
+                    placeholder="correo@ejemplo.com"
+                    autocomplete="off"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="Ingresa tu contraseña"
+                    autocomplete="off"
+                />
+            </div>
+
+            <div class="remember-forgot">
+                <label class="checkbox">
+                    <input type="checkbox" id="remember" />
+                    <span>Recuérdame</span>
+                </label>
+                <a href="#">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit" class="login-btn">Iniciar Sesión</button>
+
+            <div class="signup-link">
+                ¿No tienes cuenta? <a href="#">Regístrate ahora</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const alienEyes = document.getElementById('alienEyes');
+        const handCover = document.getElementById('handCover');
+        const loginForm = document.getElementById('loginForm');
+
+        // MOVER LOS OJOS CUANDO HAY EMAIL
+        emailInput.addEventListener('input', () => {
+            if (emailInput.value.trim()) {
+                alienEyes.style.opacity = '1';
+            } else {
+                alienEyes.style.opacity = '1';
+            }
+        });
+
+        // CUBRIR LA CARA CUANDO HAY CONTRASEÑA
+        passwordInput.addEventListener('input', () => {
+            if (passwordInput.value.trim()) {
+                handCover.classList.add('show');
+            } else {
+                handCover.classList.remove('show');
+            }
+        });
+
+        // SEGUIR EL MOUSE CON LOS OJOS
+        document.addEventListener('mousemove', (e) => {
+            if (handCover.classList.contains('show')) return;
+
+            const pupils = document.querySelectorAll('.pupil');
+            pupils.forEach(pupil => {
+                const eye = pupil.closest('.eye');
+                const eyeRect = eye.getBoundingClientRect();
+                const eyeCenterX = eyeRect.left + eyeRect.width / 2;
+                const eyeCenterY = eyeRect.top + eyeRect.height / 2;
+
+                const angle = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
+                const distance = 6;
+
+                const pupilX = Math.cos(angle) * distance;
+                const pupilY = Math.sin(angle) * distance;
+
+                pupil.style.transform = `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))`;
+            });
+        });
+
+        // SUBMIT DEL FORMULARIO
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (emailInput.value.trim() && passwordInput.value.trim()) {
+                alert('¡Bienvenido a Netflix! 🎬\n\n(Este es un formulario de demostración)');
+                loginForm.reset();
+                handCover.classList.remove('show');
+                alienEyes.style.opacity = '1';
+            } else {
+                alert('Por favor completa todos los campos');
+            }
+        });
+
+        // GENERAR ESTRELLAS DE FONDO
+        function createStars() {
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'stars';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                document.body.appendChild(star);
+            }
+        }
+
+        createStars();
+    </script>
+</body>
+</html>
